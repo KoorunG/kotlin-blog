@@ -1,8 +1,10 @@
 spring:
-  exposed:
-    generate-ddl: true
-    show-sql: true
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://kroong.iptime.org:55432/kotlinblog
     username: kroong
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create
