@@ -2,11 +2,14 @@ package org.koorung.kotlinblog.controller
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.hamcrest.Matchers
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.koorung.kotlinblog.repository.PostRepository
 import org.koorung.kotlinblog.request.PostCreate
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -14,10 +17,18 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 
 
-@WebMvcTest
+//@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 class PostControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
+    private val postRepository: PostRepository,
 ) {
+
+    @BeforeEach
+    fun cleanup() {
+        postRepository.deleteAllInBatch()
+    }
 
     @Test
     fun `get 요청 시 hello world 출력`() {
@@ -71,5 +82,20 @@ class PostControllerTest @Autowired constructor(
             .andExpect { jsonPath("$.validation.content") { exists() } }
 //            .andExpect { jsonPath("$.results[0].message") { value("글내용은 빈 값이 올 수 없습니다!")} }
             .andDo { print() }
+    }
+
+    @Test
+    fun `post 요청 시 DB에 값이 저장된다`() {
+        // when
+        mockMvc.post("/posts") {
+            contentType = MediaType.APPLICATION_JSON
+            content = Json.encodeToString(PostCreate(title = "제목입니다.", content = "내용입니다!!"))
+        }.andExpect { status { isOk() } }
+            .andDo { print() }
+
+        // then
+        assertThat(postRepository.count()).isEqualTo(1L)
+        assertThat(postRepository.findAll().first()).extracting { it.title }.isEqualTo("제목입니다.")
+        assertThat(postRepository.findAll().first()).extracting { it.content }.isEqualTo("내용입니다!!")
     }
 }
