@@ -6,9 +6,10 @@ import jakarta.persistence.*
 class Post(
     title: String,
     content: String,
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    val id: Long = 0L
 ) {
     @Column
     var title = title
