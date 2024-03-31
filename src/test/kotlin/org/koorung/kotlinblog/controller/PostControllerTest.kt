@@ -5,6 +5,7 @@ import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.koorung.kotlinblog.domain.Post
 import org.koorung.kotlinblog.repository.PostRepository
 import org.koorung.kotlinblog.request.PostCreate
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,14 +29,6 @@ class PostControllerTest @Autowired constructor(
     @BeforeEach
     fun cleanup() {
         postRepository.deleteAllInBatch()
-    }
-
-    @Test
-    fun `get 요청 시 hello world 출력`() {
-        mockMvc.get("/posts")
-            .andExpect { status { isOk() } }
-            .andExpect { content { string("hello world") } }
-            .andDo { print() }
     }
 
     @Test
@@ -107,5 +100,26 @@ class PostControllerTest @Autowired constructor(
         assertThat(postRepository.count()).isEqualTo(1L)
         assertThat(postRepository.findAll().first()).extracting { it.title }.isEqualTo("제목입니다.")
         assertThat(postRepository.findAll().first()).extracting { it.content }.isEqualTo("내용입니다!!")
+    }
+
+    @Test
+    fun `get 요청 시 DB의 값을 불러온다`() {
+        // given
+        val save = postRepository.save(
+            Post(
+                title = "테스트제목",
+                content = "테스트내용",
+            )
+        )
+
+        // when && then
+        mockMvc.get("/posts/${save.id}") {
+            contentType = APPLICATION_JSON
+        }
+            .andExpect { status { isOk() } }
+            .andExpect { content { jsonPath("$.id") { value(save.id)} } }
+            .andExpect { content { jsonPath("$.title") { value("테스트제목")} } }
+            .andExpect { content { jsonPath("$.content") { value("테스트내용")} } }
+            .andDo { print() }
     }
 }
