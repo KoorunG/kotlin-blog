@@ -8,8 +8,8 @@ data class PostCreate(
     // Kotlin에서는 annotation이 어디 붙을 지 명시를 해주어야 제대로 동작하는 경우가 있다.
     // @Valid의 경우 field에 붙어있음을 명시해주어야함...!
     @field:NotBlank(message = "제목은 빈 값이 올 수 없습니다!")
-    val title: String,
+    val title: String = "디폴트 제목",
 
     @field:NotBlank(message = "글내용은 빈 값이 올 수 없습니다!")
-    val content: String
+    val content: String = "디폴트 내용",
 )

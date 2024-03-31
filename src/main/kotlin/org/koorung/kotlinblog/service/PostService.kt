@@ -9,13 +9,16 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostService(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
 ) {
     val logger = logger()
 
     @Transactional
     fun write(postCreate: PostCreate) {
-        val post = Post(postCreate.title, postCreate.content)
+        val post = Post(
+            title = postCreate.title,
+            content = postCreate.content
+        )
         logger.info { "post :: $post" }
         postRepository.save(post)
     }
