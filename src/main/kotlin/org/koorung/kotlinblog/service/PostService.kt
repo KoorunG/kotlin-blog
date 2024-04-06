@@ -34,4 +34,12 @@ class PostService(
                     content = it.content
                 )
             } ?: throw NoSuchElementException("해당 글이 존재하지 않습니다!!, id :: $id")
+
+    fun getAll() = postRepository.findAll().map {
+        PostResponse(
+            id = it.id,
+            title = it.title,
+            content = it.content
+        )
+    }
 }

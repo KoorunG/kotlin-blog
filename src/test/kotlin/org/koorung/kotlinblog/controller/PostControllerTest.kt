@@ -123,4 +123,21 @@ class PostControllerTest @Autowired constructor(
             .andExpect { content { jsonPath("$.content") { value("테스트내용")} } }
             .andDo { print() }
     }
+
+    @Test
+    fun `모든 글을 불러온다`() {
+        // given
+        postRepository.saveAllAndFlush(List(5) {
+            Post(
+                title = "테스트제목$it",
+                content = "테스트내용$it"
+            )
+        })
+
+        // when & then
+        mockMvc.get("/posts") {
+            contentType = APPLICATION_JSON
+        }.andExpect { status { isOk() } }
+            .andExpect { content { jsonPath("size()"){ value(5)} } }
+    }
 }

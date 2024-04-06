@@ -18,5 +18,8 @@ class PostController(
     }
 
     @GetMapping("/{postId}")
-    fun getPost(@PathVariable(name = "postId") id: Long) = postService.get(id)
+    fun getPost(@PathVariable postId: Long) = postService.get(postId)
+
+    @GetMapping()
+    fun getPosts() = postService.getAll()
 }
